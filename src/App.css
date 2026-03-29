@@ -1,0 +1,21 @@
+#root {
+  width: 100%;
+  padding: 0;
+}
+
+/* Kill modal open/close animations — instant feel */
+[data-slot='modal-backdrop'],
+[data-slot='modal-dialog'],
+[data-slot='modal-container'],
+[data-slot='drawer-backdrop'],
+[data-slot='drawer-content'],
+[data-slot='drawer-dialog'] {
+  animation-duration: 1ms !important;
+  animation-fill-mode: both !important;
+}
+
+/* Allow clicking through backdrops that are animating out */
+[data-slot='modal-backdrop'][data-exiting],
+[data-slot='drawer-backdrop'][data-exiting] {
+  pointer-events: none !important;
+}
