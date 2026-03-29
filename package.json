@@ -20,7 +20,6 @@
     "debug": "export ENABLE_ELECTRON_DEBUG=true && vite",
     "build": "tsc && vite build && electron-builder",
     "preview": "vite preview",
-    "pree2e": "vite build --mode=test",
     "e2e:cucumber": "vite build --config vite.web.config.ts && vite preview --config vite.web.config.ts --port 4173 & sleep 2 && npx cucumber-js --config cucumber.mjs; kill %1",
     "e2e:cucumber:dry": "cucumber-js --config cucumber.mjs --dry-run",
     "lint": "eslint \"src/**/*\"",
