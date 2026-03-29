@@ -1,0 +1,56 @@
+/* ── Tailwind CSS v4 + HeroUI v3 styles (official template pattern) ─────── */
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* Dark mode variant: activates HeroUI dark: utilities via .dark class (set by next-themes) */
+@custom-variant dark (&:is(.dark *));
+
+/* ── Brand: Warm food-app palette (orange primary) ───────────────────────── */
+:root,
+.light,
+[data-theme="light"],
+[data-theme="default"] {
+  --accent: oklch(0.72 0.19 41);
+  --accent-foreground: oklch(1 0 0);
+}
+
+.dark,
+[data-theme="dark"] {
+  --accent: oklch(0.78 0.17 41);
+  --accent-foreground: oklch(0.15 0 0);
+}
+
+/* ── Global tokens ───────────────────────────────────────────────────────── */
+@theme inline {
+  --font-sans: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --color-brand: oklch(0.72 0.19 41);
+  --color-brand-muted: oklch(0.93 0.06 41);
+  --radius-card: 0.75rem;
+}
+
+/* ── Burger builder animations ───────────────────────────────────────────── */
+@keyframes layer-drop {
+  0%   { transform: translateY(-32px) scaleX(0.82); opacity: 0; }
+  55%  { transform: translateY(5px) scaleX(1.07); opacity: 1; }
+  75%  { transform: translateY(-2px) scaleX(0.97); }
+  100% { transform: translateY(0) scaleX(1); opacity: 1; }
+}
+
+@keyframes float-idle {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%       { transform: translateY(-10px) rotate(4deg); }
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+html {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
