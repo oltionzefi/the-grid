@@ -2,10 +2,36 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 import log from 'electron-log/main';
 
 import { update } from './update';
+
+interface WindowState {
+  width: number;
+  height: number;
+  x?: number;
+  y?: number;
+}
+
+function getWindowStatePath() {
+  return join(app.getPath('userData'), 'window-state.json');
+}
+
+function loadWindowState(): WindowState {
+  try {
+    return JSON.parse(readFileSync(getWindowStatePath(), 'utf8')) as WindowState;
+  } catch {
+    return { width: 1200, height: 800 };
+  }
+}
+
+function saveWindowState(state: WindowState): void {
+  try {
+    writeFileSync(getWindowStatePath(), JSON.stringify(state), 'utf8');
+  } catch { /* best-effort */ }
+}
 
 log.initialize();
 
@@ -71,9 +97,15 @@ async function createWindow() {
     await installExtensions();
   }
 
+  const saved = loadWindowState();
+
   win = new BrowserWindow({
     title: 'Burger',
     icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
+    width: saved.width,
+    height: saved.height,
+    x: saved.x,
+    y: saved.y,
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -84,6 +116,15 @@ async function createWindow() {
       // contextIsolation: false,
     },
   });
+
+  const persistBounds = () => {
+    if (!win) return;
+    const { width, height, x, y } = win.getBounds();
+    saveWindowState({ width, height, x, y });
+  };
+
+  win.on('resize', persistBounds);
+  win.on('move', persistBounds);
 
   if (url) {
     // electron-vite-vue#298

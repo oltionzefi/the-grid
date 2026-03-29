@@ -229,9 +229,6 @@ export const INGREDIENTS: Ingredient[] = [
   },
 ];
 
-export const INGREDIENT_BY_CAT = (cat: IngredientCategory) =>
-  INGREDIENTS.filter((i) => i.category === cat);
-
 export const CATEGORY_META: Record<
   IngredientCategory,
   { label: string; emoji: string; multi: boolean }

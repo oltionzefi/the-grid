@@ -18,10 +18,6 @@ export default defineConfig(({ command, mode }) => {
   const isTest = mode === 'test';
   const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
 
-  // Coordinate startup: wait for both main + preload before launching Electron
-  let startup: (() => void) | null = null;
-  let preloadReady = false;
-
   return {
     resolve: {
       alias: {
@@ -54,11 +50,8 @@ export default defineConfig(({ command, mode }) => {
           onstart(args) {
             if (process.env.VSCODE_DEBUG) {
               console.log(/* For `.vscode/.debug.script.mjs` */ '[startup] Electron App');
-            } else if (preloadReady) {
-              args.startup();
             } else {
-              // Preload not ready yet — store startup and fire when preload is done
-              startup = () => args.startup();
+              args.startup();
             }
           },
           vite: {
@@ -75,15 +68,9 @@ export default defineConfig(({ command, mode }) => {
         preload: {
           input: 'electron/preload/index.ts',
           onstart(args) {
-            preloadReady = true;
-            if (startup) {
-              // Main was already built and waiting — fire startup now
-              startup();
-              startup = null;
-            } else {
-              // Subsequent rebuilds: hot-reload the renderer
-              args.reload();
-            }
+            // Hot-reload the renderer when preload rebuilds; on initial
+            // startup args.reload() falls through to startup() internally.
+            args.reload();
           },
           vite: {
             build: {
@@ -113,7 +100,7 @@ export default defineConfig(({ command, mode }) => {
         exclude: [
           ...configDefaults.coverage?.exclude ?? [],
           'electron/**',
-          'src/main.tsx',
+          'src/electron-main.tsx',
           'src/commands/node.ts',
           'playwright.config.ts',
           'postcss.config.js',

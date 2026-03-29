@@ -1,10 +1,10 @@
 {
-  "name": "@oltionzefi/burger",
+  "name": "@oltionzefi/the-grid",
   "version": "1.0.0",
   "main": "dist/main/index.js",
-  "description": "Order a Burger and Burger will be ready for you to enjoy",
+  "description": "The Grid application",
   "author": "Oltion Zefi <oltion.zefi@gmail.com>",
-  "repository": "oltionzefi/burger",
+  "repository": "oltionzefi/the-grid",
   "license": "MIT",
   "private": true,
   "debug": {
@@ -17,9 +17,13 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:web": "vite --config vite.web.config.ts",
     "debug": "export ENABLE_ELECTRON_DEBUG=true && vite",
     "build": "tsc && vite build && electron-builder",
+    "build:web": "tsc && vite build --config vite.web.config.ts",
     "preview": "vite preview",
+    "preview:web": "vite preview --config vite.web.config.ts",
+    "postinstall": "node node_modules/electron/install.js",
     "e2e:cucumber": "vite build --config vite.web.config.ts && vite preview --config vite.web.config.ts --port 4173 & sleep 2 && npx cucumber-js --config cucumber.mjs; kill %1",
     "e2e:cucumber:dry": "cucumber-js --config cucumber.mjs --dry-run",
     "lint": "eslint \"src/**/*\"",
@@ -32,6 +36,7 @@
   },
   "dependencies": {
     "@heroui/react": "^3.0.1",
+    "@heroui/styles": "^3.0.1",
     "electron-debug": "^4.1.0",
     "electron-log": "^5.3.3",
     "electron-updater": "^6.6.2",
@@ -86,7 +91,6 @@
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
-      "electron",
       "electron-winstaller",
       "esbuild"
     ]
