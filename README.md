@@ -1,21 +1,39 @@
-# 🍔 The Grid
+# 🍔 The Grid — Frontend
 
-> A cross-platform desktop burger ordering app built with Electron + React.
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](../LICENSE)
 
-Browse the menu, build a custom burger, check delivery locations on an interactive map, manage your account, and place an order — all from a native desktop experience with full dark mode support.
+Cross-platform burger-ordering app built with **React 19 + TypeScript**, delivered as an **Electron desktop app** and a **web app** from the same codebase.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [App Routes](#app-routes)
+- [Scripts](#scripts)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [License](#license)
 
 ---
 
 ## Features
 
-- **Burger Menu** — Browse, search, and filter burgers by category. Customise toppings and add to cart.
-- **Custom Builder** — Step-by-step visual burger assembly: choose bun, patty, and toppings.
-- **Delivery Locations** — Interactive Leaflet map showing all pickup points.
+- **Burger Menu** — Browse, search, and filter by category. Customise toppings and add to cart.
+- **Custom Builder** — Visual step-by-step assembly: bun → patty → cheese → toppings → sauce.
+- **Delivery Locations** — Interactive Leaflet map with all pickup points.
 - **Recipes** — Expandable recipe cards with ingredients and steps.
-- **Account & Loyalty** — View loyalty card and personal details.
-- **Settings** — Appearance (light/dark/system), location access toggle, preferred pickup.
+- **Cart & Checkout** — Slide-out cart drawer; Stripe payment flow.
+- **Account & Loyalty** — Loyalty card and profile view.
+- **Settings** — Appearance (light/dark/system), location toggle, preferred pickup.
 - **FAQ** — Accordion-style help section.
-- **Admin Panel** — PIN-gated panel (`1234`) for managing menu, locations, builder ingredients, and store branding.
+- **Terms & Conditions** — Implicit agreement; no checkbox required.
+- **Admin Panel** — PIN-gated (`1234`): manage menu, locations, builder ingredients, store branding.
+- **Dark Mode** — System-aware, persisted via `next-themes`.
+- **Auth0** — Authentication with graceful degradation in dev (works without env vars).
 
 ---
 
@@ -25,15 +43,21 @@ Browse the menu, build a custom burger, check delivery locations on an interacti
 |---|---|
 | Desktop Runtime | Electron 35 |
 | UI Framework | React 19 |
-| Build Tool | Vite 6 |
 | Language | TypeScript 5 (strict) |
-| State Management | Zustand 5 (persisted, version 3) |
-| UI Components | HeroUI v3 |
+| Build Tool | Vite 6 |
+| State Management | Zustand 5 (persisted to `sessionStorage`, version 3) |
+| UI Components | HeroUI v3 (`@heroui/react`) |
 | Styling | Tailwind CSS v4 |
 | Icons | lucide-react |
 | Dark Mode | next-themes |
 | Routing | React Router 7 |
+| Auth | Auth0 (`@auth0/auth0-react`) |
+| Payments | Stripe (`@stripe/react-stripe-js`) |
 | Maps | Leaflet 1.9 + react-leaflet 5 |
+| Unit Tests | Vitest 3 + Testing Library (jsdom) |
+| E2E Tests | Playwright 1.51 + Cucumber BDD |
+| Linting | ESLint 9 + Prettier 3 |
+| Git Hooks | Husky 9 (format → lint → test on pre-commit) |
 
 ---
 
@@ -42,78 +66,155 @@ Browse the menu, build a custom burger, check delivery locations on an interacti
 ### Prerequisites
 
 - Node.js 20+
-- npm 10+
+- pnpm 9+
 
 ### Install
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Development
 
 ```bash
-npm run dev        # Electron + Vite dev server with hot reload
-npm run debug      # Dev with React DevTools enabled
+# Web browser (no Electron)
+pnpm dev
+
+# Electron desktop app
+pnpm dev:electron
+
+# Electron with React DevTools
+pnpm debug
 ```
 
 ### Build
 
 ```bash
-npm run build      # tsc → Vite build → electron-builder
+# Web build
+pnpm build:web
+
+# Electron distributable
+pnpm build
 ```
 
 ---
 
-## Available Scripts
+## Environment Variables
 
-| Script | Description |
+Copy `.env.example` to `.env`. The app works without Auth0 vars (graceful degradation — loads mock data from store).
+
+| Variable | Description |
 |---|---|
-| `npm run dev` | Start Electron dev server |
-| `npm run build` | Production build |
-| `npm run test` | Run unit tests (Vitest, exits on completion) |
-| `npm run test:coverage` | Run tests with v8 coverage report |
-| `npm run e2e:cucumber` | Run Cucumber BDD E2E tests |
-| `npm run lint:fix` | ESLint auto-fix |
-| `npm run format:fix` | Prettier auto-format |
+| `VITE_AUTH0_DOMAIN` | Auth0 tenant domain |
+| `VITE_AUTH0_CLIENT_ID` | Auth0 SPA client ID |
+| `VITE_AUTH0_AUDIENCE` | JWT audience (`https://api.thegrid.io`) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (`pk_test_…`) |
+| `VITE_API_BASE_URL` | Backend base URL (default: `http://localhost:8080`) |
 
 ---
 
 ## App Routes
 
-| Path | Description |
+| Path | Description | Notes |
+|---|---|---|
+| `/` | Burger menu — browse, filter, order | Default page |
+| `/build` | Custom burger builder | Accessed from home CTA — not in nav |
+| `/location` | Delivery map | Leaflet interactive |
+| `/recipe` | Recipe cards | Expand/collapse |
+| `/settings` | Preferences | Theme, location, pickup |
+| `/account` | Loyalty card & profile | |
+| `/faq` | Help & FAQ | Accordion |
+| `/terms` | Terms & Conditions | Implicit agreement |
+| `/admin` | Admin panel | PIN: `1234` |
+
+Nav links (sticky header): **Burgers · Locations · Recipes**
+
+---
+
+## Scripts
+
+| Script | Description |
 |---|---|
-| `/` | Burger menu — browse, search, filter, order |
-| `/build` | Custom burger builder |
-| `/location` | Delivery map |
-| `/recipe` | Recipe cards |
-| `/settings` | Preferences |
-| `/account` | Loyalty card & account info |
-| `/faq` | Help & FAQ |
-| `/terms` | Terms & Conditions |
-| `/admin` | Admin panel (PIN: `1234`) |
+| `pnpm dev` | Vite web dev server |
+| `pnpm dev:electron` | Electron + Vite dev with hot reload |
+| `pnpm debug` | Electron dev with React DevTools |
+| `pnpm build` | tsc → Vite build → electron-builder |
+| `pnpm build:web` | Web-only Vite build |
+| `pnpm test` | Vitest unit tests (exits on completion) |
+| `pnpm test:coverage` | Vitest with v8 coverage report |
+| `pnpm e2e:cucumber` | Cucumber BDD E2E tests (requires preview server) |
+| `pnpm lint:fix` | ESLint auto-fix |
+| `pnpm format:fix` | Prettier auto-format |
+
+---
+
+## Testing
+
+### Unit tests
+
+```bash
+pnpm test              # run all tests
+pnpm test:coverage     # run with coverage report
+```
+
+- **Framework**: Vitest 3 + Testing Library
+- **Coverage target**: ≥ 80% statement coverage
+- Tests are co-located: `src/modules/<feature>/__test__/index.spec.tsx`
+- HeroUI mocked in tests — use `vi.hoisted()` for variables used inside `vi.mock()` factories
+
+### E2E tests (Cucumber + Playwright)
+
+```bash
+pnpm preview          # start preview server first (port 4173)
+pnpm e2e:cucumber     # run 28 BDD scenarios
+```
+
+App uses `HashRouter` — E2E navigate via `/#/path` format.
 
 ---
 
 ## Project Structure
 
 ```
-src/
-├── components/       # Shared UI (nav, cart drawer, dropdown)
-├── modules/          # Feature pages (burger, build, location, recipe…)
-├── state/            # Zustand store (cart, prefs, admin data)
-├── assets/           # Static assets (images)
-└── commands/         # Electron IPC listeners
-
-electron/
-├── main/             # BrowserWindow + auto-updater
-└── preload/          # contextBridge IPC + loading screen
-
-e2e/                  # Cucumber BDD scenarios + Playwright
+the-grid/
+├── src/
+│   ├── electron-main.tsx      # Electron entry (AuthProvider + App)
+│   ├── web-main.tsx           # Web entry (AuthProvider + App)
+│   ├── App.tsx                # Router + layout
+│   ├── lib/
+│   │   ├── api.ts             # Typed fetch client (burgers, orders, locations…)
+│   │   ├── useApi.ts          # Hook injecting Auth0 token into API calls
+│   │   ├── AuthProvider.tsx   # Auth0Provider with graceful dev degradation
+│   │   └── useBootstrap.ts    # Loads remote data into Zustand on auth
+│   ├── modules/
+│   │   ├── burger/            # Burger grid + ordering
+│   │   ├── build/             # Custom builder
+│   │   ├── location/          # Leaflet map
+│   │   ├── recipe/            # Recipe cards
+│   │   ├── account/           # Loyalty card
+│   │   ├── settings/          # Preferences
+│   │   ├── faq/               # Help accordion
+│   │   ├── terms/             # Terms page
+│   │   └── admin/             # PIN-gated admin panel
+│   ├── components/
+│   │   ├── navigation/        # Sticky header
+│   │   ├── cart-drawer/       # Slide-out cart
+│   │   └── dropdown-menu/     # Settings dropdown
+│   ├── state/index.ts         # Zustand store (persist v3)
+│   ├── composables/           # useLocalStorage
+│   └── assets/                # Images (always place here, never public/)
+├── electron/
+│   ├── main/                  # BrowserWindow + auto-updater
+│   └── preload/               # contextBridge IPC + loading screen
+├── e2e/
+│   ├── features/              # Cucumber .feature files
+│   └── steps/                 # Step definitions
+├── vite.config.ts             # Vite + Electron + Vitest config
+└── vite.web.config.ts         # Web-only build config
 ```
 
 ---
 
 ## License
 
-MIT © [Oltion Zefi](https://github.com/oltionzefi)
+MIT © Oltion Zefi
