@@ -40,8 +40,3 @@ npm run e2e:cucumber  # Cucumber BDD E2E (28 scenarios, requires vite preview)
 - `moduleResolution: "Bundler"` in `tsconfig.node.json` (required for `@tailwindcss/vite`)
 - All images in `src/assets/` — never `public/` or project root
 - `npm run test` uses `--run` flag so it always exits
-
-## Commit Trailer
-
-Always include the following Co-authored-by trailer in commit messages:
-
