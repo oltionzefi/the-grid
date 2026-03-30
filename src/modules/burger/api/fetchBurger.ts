@@ -131,7 +131,15 @@ export const useFetchBurgers = (): Burger[] => {
   const [burgers, setBurgers] = useState<Burger[]>([]);
 
   useEffect(() => {
-    fetchBurgers().then((data) => setBurgers(data));
+    let cancelled = false;
+
+    fetchBurgers().then((data) => {
+      if (!cancelled) setBurgers(data);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return burgers;

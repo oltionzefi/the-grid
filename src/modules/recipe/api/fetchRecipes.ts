@@ -336,10 +336,18 @@ export const useRecipes = (): { recipes: Recipe[]; loading: boolean } => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     fetchRecipes().then((data) => {
-      setRecipes(data);
-      setLoading(false);
+      if (!cancelled) {
+        setRecipes(data);
+        setLoading(false);
+      }
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { recipes, loading };

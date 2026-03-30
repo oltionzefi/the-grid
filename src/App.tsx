@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router';
 import { useOverlayState } from '@heroui/react';
 
 import './App.css';
+import { useBootstrap } from './lib/useBootstrap';
 import BurgersNavigationMenu from './components/navigation';
 import CartDrawer from './components/cart-drawer';
 import Location from './modules/location';
@@ -15,6 +16,7 @@ import AdminPage from './modules/admin';
 import TermsPage from './modules/terms';
 
 function App() {
+  useBootstrap();
   const currentYear = new Date().getFullYear();
   const cartState = useOverlayState();
 

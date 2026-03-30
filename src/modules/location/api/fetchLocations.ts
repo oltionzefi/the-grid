@@ -1,6 +1,4 @@
-import { useBurgerStore, type ShopLocation } from '@/state';
-
-export type { ShopLocation };
+import { useBurgerStore } from '@/state';
 
 export const useLocations = () => {
   const shopLocations = useBurgerStore((s) => s.shopLocations);
