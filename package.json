@@ -90,7 +90,7 @@
     "vite-plugin-electron": "^0.29.0",
     "vite-plugin-electron-renderer": "^0.14.6",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.1"
+    "vitest": "^4.1.5"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
